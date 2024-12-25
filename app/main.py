@@ -9,8 +9,12 @@ load_dotenv()
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
-MONGO_URL = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@aurora-database.oqkwf.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URL = (
+    f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@aurora-database.oqkwf.mongodb.net/"
+    "?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
+)
 DATABASE_NAME = "aurora-database"
+
 
 app = FastAPI()
 
