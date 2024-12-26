@@ -6,3 +6,8 @@ pydantic
 pymongo
 motor
 certifi
+httpx
+mongomock
+pytest
+pytest-asyncio
+pydantic

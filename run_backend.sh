@@ -10,3 +10,5 @@ source /Users/osnatshabtay/Desktop/aurora_server/aurora_server_environ/bin/activ
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 http://127.0.0.1:8000/docs#/
+
+unalias python
