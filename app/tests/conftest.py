@@ -1,10 +1,13 @@
+from unittest.mock import AsyncMock
 import pytest
 from mongomock_motor import AsyncMongoMockClient
 
 @pytest.fixture(scope="function")
-async def mock_db():
-    # Use a mock MongoDB instance
+def mock_db():
+    # Use a non-async fixture to avoid async generator conflicts
     client = AsyncMongoMockClient()
     db = client["test_mock_database"]
-    yield db
-    client.close()
+    
+    yield db  # Yield the database instance
+    client.close()  # Ensure cleanup after each test
+
