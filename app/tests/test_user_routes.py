@@ -16,8 +16,13 @@ class TestEntireFlow:
         try:
             cls.client = TestClient(app)
             cls.test_username = "ישראל ישראלי"
-            cls.password = "123456!"
-            cls.answers = {"q1": "answer1", "q2": "answer2"}
+            cls.password = "123456O!"
+
+            cls.mock_questions = [
+                {"_id": "1", "question": "What is 2+2?", "options": ["3", "4", "5"], "answer": "4"},
+                {"_id": "2", "question": "What is 3+3?", "options": ["5", "6", "7"], "answer": "6"}
+            ]
+            cls.answers = {"answer1": "4", "answer2": "6"}
             
         except Exception as e:
             logging.error(f"Error in setting up TestEntireFlow class: {e}")
@@ -138,4 +143,20 @@ class TestEntireFlow:
         content = response.json()
         assert content['detail'] == "Invalid username or password.", f"wrong message details: {content['detail']} != Invalid username or password."
 
+    @pytest.mark.asyncio
+    async def test_post_questions(self, mock_db):
+        async def override_get_db_conn():
+            yield mock_db
 
+        app.dependency_overrides[get_db_conn] = override_get_db_conn
+
+        global current_user
+        current_user = type("User", (object,), {"username": "test_user"})()
+
+        response = self.client.post("/users/questions", json=self.answers)
+
+        assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
+        assert response.json()["message"] == "Answers saved successfully", f"Unexpected message: {response.json()['message']}"
+
+
+    

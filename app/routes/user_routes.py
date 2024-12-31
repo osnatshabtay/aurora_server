@@ -1,3 +1,4 @@
+from app.services.users.password_validator import password_validator
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import Response
 from app.modules.user import User
@@ -11,6 +12,10 @@ router = APIRouter()
 @router.post("/register")
 async def register_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     collection = db_conn["user_data"]
+    
+    password_error = password_validator(user_input.password)
+    if password_error:
+        raise HTTPException(status_code=400, detail=password_error)
 
     # Prepare user data
     user_data = {
@@ -52,6 +57,7 @@ async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
 
 @router.get("/questions")
 async def questions_endpoint(db_conn=Depends(get_db_conn)):
+    print(f"Database connection: {db_conn}")
     collection = db_conn["questions"]
     questions_cursor = collection.find()
     questions = await questions_cursor.to_list(length=None)  
@@ -60,6 +66,7 @@ async def questions_endpoint(db_conn=Depends(get_db_conn)):
         if "_id" in question:
             question["_id"] = str(question["_id"])
 
+    print(f"Fetched questions: {questions}")
     return {"questions": questions}
 
 @router.post("/questions")
