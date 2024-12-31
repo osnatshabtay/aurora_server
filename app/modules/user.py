@@ -3,6 +3,6 @@ from pydantic import BaseModel
 class User(BaseModel):
     username: str
     password: str
-    agreement: bool
+    agreement: bool = True 
 
 
