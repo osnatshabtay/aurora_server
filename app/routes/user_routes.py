@@ -12,10 +12,16 @@ router = APIRouter()
 async def register_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     collection = db_conn["user_data"]
 
+    # Ensure the user provides agreement to the regulations
+    if not user_input.agreement:
+        raise HTTPException(status_code=400, detail="User agreement is required to register.")
+
+
     # Prepare user data
     user_data = {
         "username": user_input.username,
-        "password": user_input.password  
+        "password": user_input.password,
+        "agreement": user_input.agreement,  
     }
 
     existing_user = await collection.find_one({"username": user_input.username})
