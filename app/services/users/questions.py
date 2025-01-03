@@ -258,3 +258,21 @@ questions_with_trauma = [
 
 ]
 
+
+photo_girl = [
+        {
+            "question": "תבחרי עבורך תמונה :)",
+            "options": ["girl_avatar1.png", "girl_avatar2.png", "girl_avatar3.png", "girl_avatar4.png", "girl_avatar5.png", "girl_avatar6.png", "girl_avatar7.png", "girl_avatar8.png", "girl_avatar9.png", "girl_avatar10.png", "girl_avatar11.png", "girl_avatar12.png"],
+            "multiple": False,
+            "trauma": False
+        }
+]
+
+photo_boy = [
+        {
+            "question": "תבחר עבורך תמונה :)",
+            "options": ["boy_avatar1.png", "boy_avatar2.png", "boy_avatar3.png", "boy_avatar4.png", "boy_avatar5.png", "boy_avatar6.png", "boy_avatar7.png", "boy_avatar8.png" ],
+            "multiple": False,
+            "trauma": False
+        }
+]

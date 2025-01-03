@@ -159,7 +159,7 @@ class TestEntireFlow:
         response = self.client.post("/users/questions", json=self.answers)
 
         assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
-        assert response.json()["message"] == "Answers saved successfully", f"Unexpected message: {response.json()['message']}"
+        assert response.json()["message"] == "Answers, gender, and image URL saved successfully", f"Unexpected message: {response.json()['message']}"
 
 
     
