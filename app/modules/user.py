@@ -5,6 +5,6 @@ class User(BaseModel):
     password: str
     agreement: bool = True 
     selectedImage: str = None
-    boy: bool = True
+    gender: str = 'אחר'
 
 

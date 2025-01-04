@@ -16,6 +16,9 @@ router = APIRouter()
 async def write_post_endpoint(post_input: Post, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
     collection = db_conn["post_data"]
 
+    if not isinstance(current_user, dict):
+        current_user = current_user.dict()
+
     existing_user = await db_conn["user_data"].find_one({"username": current_user["username"]})
     if not existing_user:
         raise HTTPException(status_code=400, detail="User does not exist.")
@@ -47,5 +50,8 @@ async def posts_endpoint(db_conn=Depends(get_db_conn), current_user=Depends(get_
     for post in posts:
         if "_id" in post:
             post["_id"] = str(post["_id"])
+    
+    if not isinstance(current_user, dict):
+        current_user = current_user.dict()
 
     return {"posts": posts, "current_username": current_user["username"], "current_username_image": current_user["selectedImage"] }
