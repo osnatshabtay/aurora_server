@@ -4,6 +4,8 @@ from fastapi.responses import Response
 from app.modules.user import User
 from app.db import get_db_conn
 import json
+from app.services.users.session import set_current_user, get_current_user
+
 
 current_user = None
 
@@ -37,8 +39,7 @@ async def register_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     if not result.acknowledged: 
         raise HTTPException(status_code=500, detail="Failed to save user to the database.")
     
-    global current_user
-    current_user = user_input 
+    set_current_user(user_input)
 
     return Response(
         content=json.dumps({"message": "User registered successfully", "id": str(result.inserted_id)}),
@@ -53,8 +54,7 @@ async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     if not user or user["password"] != user_input.password:
         raise HTTPException(status_code=401, detail="Invalid username or password.")
     
-    global current_user
-    current_user = user_input 
+    set_current_user(user) 
 
     return Response(
         content=json.dumps({"message": "Login successful", "username": user["username"]}),
@@ -72,36 +72,45 @@ async def questions_endpoint(db_conn=Depends(get_db_conn)):
         if "_id" in question:
             question["_id"] = str(question["_id"])
 
-    print(f"Fetched questions: {questions}")
     return {"questions": questions}
 
 @router.post("/questions")
 async def questions_endpoint(answers: dict, db_conn=Depends(get_db_conn)):
 
-    global current_user
+    current_user = get_current_user()
 
     if not current_user:
         raise HTTPException(status_code=401, detail="User is not authenticated")
 
     collection = db_conn["user_data"]
 
+    # Extract gender and image URL from the incoming payload
+    gender = answers.get("gender")
+    selected_image = answers.get("selectedImage")
+
     try:
+        # Update the user's answers, gender, and selected image URL
         collection.update_one(
             {'username': current_user.username}, 
             {
                 "$set": {
-                    "answers": answers 
+                    "answers": answers.get("answers"),  
+                    "gender": gender,                 
+                    "selectedImage": selected_image    
                 }
             }
         )
+
+        if gender:
+            current_user.gender = gender
+        if selected_image:
+            current_user.selectedImage = selected_image
+            
         return Response(
-                content=json.dumps({"message": "Answers saved successfully"}),
-                status_code=200
-            )        
-    
+            content=json.dumps({"message": "Answers, gender, and image URL saved successfully"}),
+            status_code=200
+        )
     except Exception as e:
-            raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
-
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
