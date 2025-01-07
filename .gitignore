@@ -170,5 +170,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 aurora_server_environ
+aurora_server_venv
 .env
 .DS_Store
