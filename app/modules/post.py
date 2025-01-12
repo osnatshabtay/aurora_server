@@ -16,3 +16,10 @@ class Post(BaseModel):
     likes: List[str] = Field(default_factory=list)
     commands: List[Comment] = Field(default_factory=list)
     approved : bool = False
+
+class LikeRequest(BaseModel):
+    post_id: str
+
+class CommentRequest(BaseModel):
+    post_id: str
+    text: str
