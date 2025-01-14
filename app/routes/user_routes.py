@@ -5,7 +5,7 @@ from app.modules.user import User
 from app.db import get_db_conn
 import json
 from app.services.users.session import set_current_user, get_current_user
-
+from pymongo import ASCENDING
 
 current_user = None
 
@@ -61,11 +61,13 @@ async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
         status_code=200
     )
 
+
 @router.get("/questions")
 async def questions_endpoint(db_conn=Depends(get_db_conn)):
     print(f"Database connection: {db_conn}")
     collection = db_conn["questions"]
-    questions_cursor = collection.find()
+
+    questions_cursor = collection.find().sort("index", ASCENDING)
     questions = await questions_cursor.to_list(length=None)  
     
     for question in questions:
