@@ -12,32 +12,6 @@ MONGO_URL = (
 )
 DATABASE_NAME = "aurora-database"
 
-# # MongoDB class for connection management
-# class MongoDB:
-#     def __init__(self, uri: str, db_name: str):
-#         self.uri = uri
-#         self.db_name = db_name
-#         self.client = None
-
-#     async def __aenter__(self):
-#         if not self.client:
-#             self.client = AsyncIOMotorClient(self.uri)
-#         return self.client[self.db_name]
-
-#     async def __aexit__(self, exc_type, exc_val, exc_tb):
-#         pass
-#         # if self.client:
-#         #     self.client.close()
-
-# # MongoDB instance
-# mongo_instance = MongoDB(uri=MONGO_URL, db_name=DATABASE_NAME)
-
-# # Dependency for database access
-# async def get_db_conn():
-#     async with mongo_instance as db:
-#         yield db
-
-
 mongo_client = None
 
 async def init_mongo_client():
