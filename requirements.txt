@@ -11,3 +11,4 @@ mongomock
 pytest
 pytest-asyncio
 pydantic
+openai
