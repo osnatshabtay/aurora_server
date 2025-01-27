@@ -64,9 +64,8 @@ async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
 
 @router.get("/questions")
 async def questions_endpoint(db_conn=Depends(get_db_conn)):
-    print(f"Database connection: {db_conn}")
-    collection = db_conn["questions"]
 
+    collection = db_conn["questions"]
     questions_cursor = collection.find().sort("index", ASCENDING)
     questions = await questions_cursor.to_list(length=None)  
     

@@ -232,6 +232,13 @@ questions_list = [
 
     {
         "index": 34,
+        "question": "מה התחומי עניין שלך?",
+        "options": ["ספורט", "מוזיקה", "אומנות ויצירה", "קולנוע וסדרות", "קריאה וספרות", "טיולים בטבע", "מדיטציה ויוגה", "טכנולוגיה וגאדג'טים", "בישול ואפייה", "משחקי מחשב", "חיות מחמד", "פיתוח אישי", "ריקוד ותנועה", "צילום", "התנדבות ועזרה לאחרים", "שפות ולימודים", "אני לא בטוח/ה", "אחר"],
+        "multiple": True
+    },
+
+    {
+        "index": 35,
         "question": "האם חווית אירוע טראומטי?",
         "options": ["כן", "לא"],
         "multiple": False
@@ -240,7 +247,7 @@ questions_list = [
 
 questions_with_trauma = [
     {
-        "index": 35,
+        "index": 36,
         "question": " באיזה תדירות במהלך השבועיים האחרונים הגיעו אלייך זיכרונות/חלומות טורדניים ולא רצויים של חוויה טראומתית? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -248,7 +255,7 @@ questions_with_trauma = [
     },
 
     {
-        "index": 36,
+        "index": 37,
         "question": " באיזה תדירות במהלך השבועיים האחרונים הרגשת שהטראומה שחווית קורית שוב? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -256,7 +263,7 @@ questions_with_trauma = [
     },
 
     {
-        "index": 37,
+        "index": 38,
         "question": " באיזה תדירות במהלך השבועיים האחרונים הרגשת מצוקה כאשר משהו הזכיר לך את החוויה הטראומטית? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -264,7 +271,7 @@ questions_with_trauma = [
     },
 
     {
-        "index": 38,
+        "index": 39,
         "question": " באיזה תדירות במהלך השבועיים האחרונים מנעת מעצמך לחשוב או להרגיש דברים שמזכירים לך את החוויה הטראומטית? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -272,7 +279,7 @@ questions_with_trauma = [
     },
 
     {
-        "index": 39,
+        "index": 40,
         "question": " באיזה תדירות במהלך השבועיים האחרונים הרגשת שאתה נמנע מלהיפגש עם אנשים שמזכירים לך את החוויה הטראומטית? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -280,7 +287,7 @@ questions_with_trauma = [
     },
 
     {
-        "index": 40,
+        "index": 41,
         "question": " באיזה תדירות במהלך השבועיים האחרונים הרגשת שאתה לא זוכר חלקים חשובים מתוך החוויה הטראומטית? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
@@ -288,13 +295,19 @@ questions_with_trauma = [
     },
 
     {
-        "index": 41,
+        "index": 42,
         "question": " באיזה תדירות אתה מרגיש שמישהו אשם על מה שקרה באירוע או אחריו? ",
         "options": ["בכלל לא", "פעמים מעטות", "יחסית הרבה", "כמעט כל יום"],
         "multiple": False,
         "trauma": True
     },
-
+    {
+    "index": 43,
+    "question": "איזה סוג טראומה חווית?",
+    "options": ["טראומה רגשית", "טראומה פיזית", "טראומה מינית", "אירוע אלים", "מלחמה/שירות צבאי", "טראומה בילדות", "דחייה חברתית", "אסון טבע", "תאונת דרכים", "אירוע רפואי", "אני לא בטוח/ה", "אחר"],
+    "multiple": True
+    },
+    
 
 
 ]
@@ -302,7 +315,7 @@ questions_with_trauma = [
 
 photo_girl = [
         {
-            "index": 42,
+            "index": 44,
             "question": "תבחרי עבורך תמונה :)",
             "options": ["girl_avatar1.png", "girl_avatar2.png", "girl_avatar3.png", "girl_avatar4.png", "girl_avatar5.png", "girl_avatar6.png", "girl_avatar7.png", "girl_avatar8.png", "girl_avatar9.png", "girl_avatar10.png", "girl_avatar11.png", "girl_avatar12.png"],
             "multiple": False,
@@ -312,10 +325,12 @@ photo_girl = [
 
 photo_boy = [
         {
-            "index": 43,
+            "index": 45,
             "question": "תבחר עבורך תמונה :)",
             "options": ["boy_avatar1.png", "boy_avatar2.png", "boy_avatar3.png", "boy_avatar4.png", "boy_avatar5.png", "boy_avatar6.png", "boy_avatar7.png", "boy_avatar8.png" ],
             "multiple": False,
             "trauma": False
         }
 ]
+
+

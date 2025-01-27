@@ -7,6 +7,7 @@ class Comment(BaseModel):
     username: str 
     text: str 
     timestamp: datetime = Field(default_factory=datetime.utcnow) 
+    approved : bool = False
 
 
 class Post(BaseModel):
