@@ -70,9 +70,9 @@ async def chat(message_input: Message, db_conn=Depends(get_db_conn), current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
-    # finally:
-    #     if client:
-    #         await client.close()
+    finally:
+        if client:
+            client.close()
     
 @router.get("/chat_history")
 async def get_chat_history(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
