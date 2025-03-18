@@ -1,65 +1,150 @@
-def classify_user_profile(answers):
-
-    categories = { 
-        "mental_health": False,  # מצב נפשי כללי
-        "anxiety": False,  # חרדה
-        "depression": False,  # דיכאון
-        "loneliness": False,  # בדידות
-        "sleep_issues": False,  # קשיי שינה
-        "trauma": False,  # טראומה
-        "self_confidence": False,  # ביטחון עצמי
-        "emotional_regulation": False,  # ויסות רגשי
-        "social_support": False,  # תמיכה חברתית
-        "motivation": False  # מוטיבציה כללית
+def classify_user_profile_from_db(answers_list):
+    categories = {
+        "mental_health": False,
+        "anxiety": False,
+        "depression": False,
+        "loneliness": False,
+        "sleep_issues": False,
+        "trauma": False,
+        "self_confidence": False,
+        "emotional_regulation": False,
+        "social_support": False,
+        "motivation": False
     }
 
-    category_mapping = {
-        "question_7": ("mental_health",),  # מה הוביל אותך להירשם לאפליקציה?
-        "question_9": ("mental_health", "anxiety"),  # האם חווה חרדה/לחץ?
-        "question_10": ("mental_health", "motivation"),  # האם הרגשת הנאה?
-        "question_11": ("mental_health", "depression"),  # חווית דיכאון?
-        "question_12": ("sleep_issues",),  # קשיי שינה
-        "question_13": ("mental_health",),  # מרגיש עייף/מוטרד?
-        "question_14": ("depression",),  # מרגיש רע עם עצמך?
-        "question_15": ("mental_health",),  # הכל מאמץ עבורך?
-        "question_16": ("anxiety",),  # חרדה מפני אסון עתידי?
-        "question_17": ("motivation",),  # איבדת עניין?
-        "question_18": ("loneliness", "social_support"),  # ריחוק מאנשים?
-        "question_19": ("emotional_regulation",),  # קושי לחוות רגשות חיוביים?
-        "question_20": ("mental_health", "emotional_regulation"),  # לקחת סיכון עצמי?
-        "question_21": ("mental_health",),  # קושי להתרכז?
-        "question_22": ("mental_health", "trauma"),  # אילו חוויות קשה לך להתמודד איתן?
-        "question_23": ("emotional_regulation", "social_support"),  # איך את/ה מתמודד/ת עם מצבים קשים?
-        "question_24": ("social_support",),  # איפה אתה מרגיש בנוח לשתף?
-        "question_25": ("self_confidence",),  # כמה טוב אתה מרגיש עם עצמך?
-        "question_26": ("social_support",),  # פתיחות לשיתוף פעולה עם אחרים?
-        "question_27": ("social_support",),  # איזה סוג חיבור מתאים לך?
-        "question_29": ("sleep_issues",),  # איך היית מגדיר את הרגלי השינה שלך?
-        "question_30": ("mental_health", "social_support"),  # אילו כלים יכולים לעזור לך?
-        "question_31": ("mental_health", "motivation"),  # דירוג מצב כללי
-        "question_32": ("emotional_regulation",),  # שליטה ברגשות
-        "question_33": ("social_support",),  # קרבה לקשרים חברתיים
-        "question_35": ("trauma",),  # האם חווית אירוע טראומטי?
-        "question_36": ("trauma",),  # זיכרונות טראומטיים חוזרים?
-        "question_37": ("trauma",),  # תחושת חזרה על החוויה הטראומטית?
-        "question_38": ("trauma",),  # תחושת מצוקה בעקבות זיכרון טראומטי?
-        "question_39": ("trauma",),  # הימנעות ממחשבות על הטראומה?
-        "question_40": ("trauma",),  # הימנעות מאנשים שמזכירים את הטראומה?
-        "question_41": ("trauma",),  # חוסר זיכרון של חלקים מהחוויה?
-        "question_42": ("trauma",),  # תחושת אשמה על האירוע?
+
+    answer_mapping = {
+        "מה הוביל אותך להירשם לאפלקציה שלנו? ": {
+            "תחושת חרדה": "anxiety",
+            "תחושת דיכאון": "depression",
+            "מצב הרוח שלי מפריע לי ביום יום": "mental_health",
+            "אני מתקשה ליצור חיבור אישי": "loneliness",
+            "אני מתאבל": "mental_health",
+            "חוויתי טאראומה": "trauma",
+            "אני רוצה לצבור ביטחון": "self_confidence", 
+            "אני צריך לדבר עם מישהו שלא מכיר אותי אישית": "social_support"
+        },
+
+        "האם אתה חווה כרגע דיכאון, לחץ או חרדה? ": {
+            "כן": ["mental_health", "anxiety"]
+        },
+
+        " באיזה תדירות במהלך השבועיים האחרונים הרגשת עצב או דיכאון? ": {
+            "יחסית הרבה": "depression",
+            "כמעט כל יום": "depression"
+        },
+
+        " באיזה תדירות במהלך השבועיים האחרונים הרגשת רע עם עצמך? ": {
+            "יחסית הרבה": "self_confidence",
+            "כמעט כל יום": "self_confidence"
+        },
+
+        " האם אתה מרגיש שאתה מאבד עניין בדברים שפעם עניינו אותך? ": {
+            "יחסית הרבה": "motivation",
+            "כן": "motivation"
+        },
+
+
+        " באיזה תדירות במהלך השבועיים האחרונים הרגשת מפוחד שמשהו נורא עומד לקרות? ": {
+            "יחסית הרבה": "anxiety",
+            "כמעט כל יום": "anxiety"
+        },
+
+        " באיזה תדירות במהלך השבועיים האחרונים הרגשת קושי להירדם או קושי לישון שינה רצופה? ": {
+            "יחסית הרבה": "sleep_issues",
+            "כמעט כל יום": "sleep_issues"
+        },
+
+        " באיזה תדירות במהלך השבועיים האחרונים הרגשת עייף או מוטרד? ": {
+            "יחסית הרבה": "mental_health",
+            "כמעט כל יום": "mental_health"
+        },
+
+        "איך היית מגדיר את הרגלי השינה שלך? ": {
+            "טעון שיפור": "sleep_issues"
+        },
+
+        " האם אתה מרגיש ריחוק או ניתוק מאנשים אחרים? ": {
+            "יחסית הרבה": "loneliness",
+            "כן": "loneliness"
+        },
+
+        "מהי הסביבה שאת/ה מרגיש/ה בה הכי בנוח לשתף חוויות?": {
+            "במרחב אנונימי": "social_support",
+            "אני לא מרגיש/ה בנוח לשתף": "loneliness"
+        },
+
+        "מהי רמת הפתיחות שלך לשיתוף פעולה עם אנשים חדשים?": {
+            "לא פתוח/ה בכלל": "social_support"
+        },
+
+
+        "האם חווית אירוע טראומטי?": {
+            "כן": "trauma"
+        },
+
+        "איזה סוג טראומה חווית?": {
+            "טראומה רגשית": "trauma",
+            "טראומה פיזית": "trauma",
+            "טראומה מינית": "trauma",
+            "מלחמה/שירות צבאי": "trauma",
+            "דחייה חברתית": "trauma"
+        },
+
+        " באיזה תדירות במהלך השבועיים האחרונים הגיעו אלייך זיכרונות/חלומות טורדניים ולא רצויים של חוויה טראומתית? ": {
+            "יחסית הרבה": "trauma",
+            "כמעט כל יום": "trauma"
+        },
+
+
+        "איך את/ה מתמודד/ת בדרך כלל עם מצבים קשים?": {
+            "מתכנס/ת בתוך עצמי": "emotional_regulation",
+            "נעזר/ת בטיפול מקצועי": "social_support"
+        },
+
+        " עד כמה אתה מצליח לשלוט ברגשותיך ולא נותן להם לשלוט בך? ": {
+            "בכלל לא מצליח": "emotional_regulation",
+            "בקושי": "emotional_regulation"
+        },
+
+
+        "תדרג את מצבך באופן כללי ": {
+            "הכי נורא שאפשר": "mental_health",
+            "מצבי רוח משתנים": "mental_health"
+        },
+
+        "מה התחומי עניין שלך?": {
+            "ספורט": "motivation",
+            "מדיטציה ויוגה": "mental_health",
+            "פיתוח אישי": "self_confidence"
+        }
     }
 
-    trigger_values = {
-        "כן": True,
-        "יחסית הרבה": True,
-        "כמעט כל יום": True,
-        "פעמים מעטות": False, 
-        "בכלל לא": False
-    }
+    for entry in answers_list:
+        question_text = entry["question"]
+        answer_value = entry["answers"]
 
-    for question, categories_list in category_mapping.items():
-        if question in answers and answers[question] in trigger_values:
-            for category in categories_list:
-                categories[category] = trigger_values[answers[question]]
+        if question_text in answer_mapping:
+            category_map = answer_mapping[question_text]
 
+            if isinstance(answer_value, list): 
+                for ans in answer_value:
+                    if ans in category_map:
+                        category = category_map[ans]
+                        print(f"q: {question_text}, ans: {ans}, cat: {category}")
+                        if isinstance(category, list):
+                            for cat in category:
+                                categories[cat] = True
+                        else:
+                            categories[category] = True
+            else: 
+                if answer_value in category_map:
+                    category = category_map[answer_value]
+                    print(f"q: {question_text}, ans: {answer_value}, cat: {category}")
+                    if isinstance(category, list):
+                        for cat in category:
+                            categories[cat] = True
+                    else:
+                        categories[category] = True
+        
     return categories
