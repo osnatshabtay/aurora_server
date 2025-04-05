@@ -140,7 +140,6 @@ def classify_user_profile_from_db(answers_list):
             else: 
                 if answer_value in category_map:
                     category = category_map[answer_value]
-                    print(f"q: {question_text}, ans: {answer_value}, cat: {category}")
                     if isinstance(category, list):
                         for cat in category:
                             categories[cat] = True

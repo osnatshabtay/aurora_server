@@ -1,3 +1,4 @@
+from app.services.recommendations.classify_user_recom import classify_user_profile_from_db
 from app.services.users.password_validator import password_validator
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import Response
@@ -88,6 +89,8 @@ async def questions_endpoint(answers: dict, db_conn=Depends(get_db_conn)):
     # Extract gender and image URL from the incoming payload
     gender = answers.get("gender")
     selected_image = answers.get("selectedImage")
+    classified_profile = classify_user_profile_from_db(answers.get("answers"))
+
 
     try:
         # Update the user's answers, gender, and selected image URL
@@ -97,7 +100,8 @@ async def questions_endpoint(answers: dict, db_conn=Depends(get_db_conn)):
                 "$set": {
                     "answers": answers.get("answers"),  
                     "gender": gender,                 
-                    "selectedImage": selected_image    
+                    "selectedImage": selected_image, 
+                    "classified_profile": classified_profile
                 }
             }
         )

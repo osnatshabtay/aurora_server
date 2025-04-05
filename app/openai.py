@@ -25,7 +25,7 @@ async def chat_completion_with_history(client, message_history, new_message, max
 
         # Call OpenAI API with conversation history
         response = await client.chat.completions.create(
-            model="gpt-3.5-turbo", 
+            model="gpt-3.5-turbo",#cnage to gpt-4 
             messages=message_history
         )
 
