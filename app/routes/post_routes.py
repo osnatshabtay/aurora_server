@@ -138,3 +138,42 @@ async def comments_endpoint(request: CommentRequest, db_conn=Depends(get_db_conn
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+
+
+@router.get("/pending_posts")
+async def get_pending_posts(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+    collection = db_conn["post_data"]
+    
+    posts_cursor = collection.find({"approved": False}).sort("timestamp", -1)
+    posts = await posts_cursor.to_list(length=None)
+
+    for post in posts:
+        if "_id" in post:
+            post["_id"] = str(post["_id"])
+    
+    return {"pending_posts": posts}
+
+
+@router.put("/approve_post/{post_id}")
+async def approve_post(post_id: str, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+    collection = db_conn["post_data"]
+    
+    result = await collection.update_one({"_id": ObjectId(post_id)}, {"$set": {"approved": True}})
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    return {"message": "Post approved successfully"}
+
+
+@router.delete("/delete_post/{post_id}")
+async def delete_post(post_id: str, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+    collection = db_conn["post_data"]
+    
+    result = await collection.delete_one({"_id": ObjectId(post_id)})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    return {"message": "Post deleted successfully"}
