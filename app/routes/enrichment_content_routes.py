@@ -102,18 +102,9 @@ async def get_user_enrichment(db_conn=Depends(get_db_conn), current_user=Depends
         
         profile = user_data["classified_profile"]
         
-        # נשלוף רק את הקטגוריות שהן True
-        relevant_categories = [key for key, val in profile.items() if val is True]
-
-        # בנה את המידע המותאם לפי הקטגוריות
-        personalized_result = {
-            cat: personalized_content.get(cat, []) for cat in relevant_categories
-        }
-
         return Response(
             content=json.dumps({
                 "classified_profile": profile,
-                "personalized_content": personalized_result
             }, ensure_ascii=False), 
             status_code=200,
             media_type="application/json"
