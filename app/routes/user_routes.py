@@ -23,6 +23,9 @@ async def register_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     if not user_input.agreement:
         raise HTTPException(status_code=400, detail="User agreement is required to register.")
 
+    # Block reserved usernames
+    if user_input.username.strip().lower() == "admin":
+        raise HTTPException(status_code=400, detail="Cannot register with reserved username 'admin'.")
 
     # Prepare user data
     user_data = {
@@ -56,8 +59,14 @@ async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
     
     set_current_user(user) 
 
+    is_admin = user["username"] == "Admin"
+
     return Response(
-        content=json.dumps({"message": "Login successful", "username": user["username"]}),
+        content=json.dumps({
+            "message": "Login successful",
+            "username": user["username"],
+            "is_admin": is_admin
+        }),
         status_code=200
     )
 
