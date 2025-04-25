@@ -20,3 +20,4 @@ unalias python
 /Users/osnatshabtay/Desktop/aurora_server/aurora_server_environ/bin/python -m pytest app/tests/test_user_routes.py
 /Users/osnatshabtay/Desktop/aurora_server/aurora_server_environ/bin/python -m pytest app/tests/test_post_routes.py
 /Users/osnatshabtay/Desktop/aurora_server/aurora_server_environ/bin/python -m pytest app/tests/test_chatbot_routes.py
+/Users/osnatshabtay/Desktop/aurora_server/aurora_server_environ/bin/python -m pytest app/tests/test_enrichment_content_routes.py

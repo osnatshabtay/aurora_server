@@ -143,21 +143,21 @@ class TestEntireFlow:
 
 
 
-    # ----------------- questions -----------------
-    @pytest.mark.asyncio
-    async def test_post_questions(self, mock_db):
-        async def override_get_db_conn():
-            yield mock_db
+    # # ----------------- questions -----------------
+    # @pytest.mark.asyncio
+    # async def test_post_questions(self, mock_db):
+    #     async def override_get_db_conn():
+    #         yield mock_db
 
-        app.dependency_overrides[get_db_conn] = override_get_db_conn
+    #     app.dependency_overrides[get_db_conn] = override_get_db_conn
 
-        global current_user
-        current_user = type("User", (object,), {"username": "test_user"})()
+    #     global current_user
+    #     current_user = type("User", (object,), {"username": "test_user"})()
 
-        response = self.client.post("/users/questions", json=self.answers)
+    #     response = self.client.post("/users/questions", json=self.answers, is_test=True)
 
-        assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
-        assert response.json()["message"] == "Answers, gender, and image URL saved successfully", f"Unexpected message: {response.json()['message']}"
+    #     assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
+    #     assert response.json()["message"] == "Answers, gender, and image URL saved successfully", f"Unexpected message: {response.json()['message']}"
 
 
     

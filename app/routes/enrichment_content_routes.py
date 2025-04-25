@@ -8,7 +8,6 @@ import logging
 from app.services.users.session import get_current_user
 from bson import ObjectId 
 from app.services.recommendations import classify_user_recom
-from app.services.recommendations.content_data import personalized_content
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,6 @@ async def user_question(db_conn=Depends(get_db_conn), current_user=Depends(get_c
         logger.error(f"Error retrieving user answers: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching user answers")
   
-    
 
 @router.post("/user_category")
 async def user_category(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
