@@ -4,7 +4,7 @@ import json
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db import get_db_conn
-from app.services.users.session import get_current_user
+from app.services.users.auth import get_current_user
 from app.services.recommendations import classify_user_recom
 
 

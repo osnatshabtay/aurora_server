@@ -46,101 +46,83 @@ class TestEntireFlow:
         response = self.client.post("/users/login", json={"username": username, "password": password})
         return response
     
-    # ----------------- register -----------------
     @pytest.mark.asyncio
     async def test_good_register(self, mock_db):
-        # Create a generator-based async override function
         async def override_get_db_conn():
-            yield mock_db  # Directly yield the non-async mock_db
+            yield mock_db
 
         app.dependency_overrides[get_db_conn] = override_get_db_conn
 
         response = await self.register()
         assert response.status_code == 200, f"Failed to register user. Response: {response.json()}"
         content = response.json()
-        assert content['message'] == "User registered successfully", f"Unexpected message: {content['message']}"
-        assert content['id'] is not None, "No ID supplied in response"
+        
+        assert 'access_token' in content, "access_token missing in response"
+        assert 'token_type' in content, "token_type missing in response"
 
     @pytest.mark.asyncio
     async def test_register_with_existing_user(self, mock_db):
         async def override_get_db_conn():
-            yield mock_db  # Directly yield the non-async mock_db
+            yield mock_db
 
         app.dependency_overrides[get_db_conn] = override_get_db_conn
 
-        # Register user for the first time
+        # First register
         response = await self.register()
-        assert response.status_code == 200, f"Failed to register user. Response: {response.json()}"
+        assert response.status_code == 200
 
-        # Attempt to register the same user again
+        # Try registering again
         response = await self.register()
-        assert response.status_code == 400, f"Succeeded to register existing user. Response: {response.json()}"
+        assert response.status_code == 400, f"Expected 400 for existing user. Response: {response.json()}"
         content = response.json()
-        assert content['detail'] == "Username already exists.", f"Unexpected message: {content['detail']}"
-    
-    @pytest.mark.asyncio
-    async def test_register_with_existing_user(self, mock_db):
-        async def override_get_db_conn():
-            yield mock_db  
-
-        app.dependency_overrides[get_db_conn] = override_get_db_conn
-
-        response = await self.register()
-        assert response.status_code == 200, f"Failed to register user. Response: {response.json()}"
-
-        response = await self.register()
-        assert response.status_code == 400, f"Succeeded to register existing user. Response: {response.json()}"
-        content = response.json()
-        assert content['detail'] == "Username already exists.", f"Unexpected message: {content['detail']}"
+        assert content['detail'] == "Username already exists.", f"Wrong detail: {content['detail']}"
 
     
     # ----------------- login -----------------
     @pytest.mark.asyncio
     async def test_good_login(self, mock_db):
         async def override_get_db_conn():
-            yield mock_db  
+            yield mock_db
 
         app.dependency_overrides[get_db_conn] = override_get_db_conn
 
-        response = await self.register(username=self.test_username, password=self.password)
-        assert response.status_code == 200, f"Failed to register user. Response: {response.json()}"
+        await self.register(username=self.test_username, password=self.password)
 
         response = await self.login(username=self.test_username, password=self.password)
         assert response.status_code == 200, f"Unable to login with existing user. Response: {response.json()}"
         
         content = response.json()
-        assert content['message'] == "Login successful", f"Unexpected message: {content['message']}"
-        assert content['username'] == self.test_username, f"Retured username is not the same - {content['username']} != self.test_username"
+        assert 'access_token' in content, "access_token missing in login response"
+        assert 'token_type' in content, "token_type missing in login response"
+        assert 'is_admin' in content, "is_admin missing in login response"
 
     @pytest.mark.asyncio
     async def test_login_bad_password(self, mock_db):
         async def override_get_db_conn():
-            yield mock_db  
+            yield mock_db
 
         app.dependency_overrides[get_db_conn] = override_get_db_conn
 
-        response = await self.register(username=self.test_username, password=self.password)
-        assert response.status_code == 200, f"Failed to register user. Response: {response.json()}"
+        await self.register(username=self.test_username, password=self.password)
 
-        response = await self.login(username=self.test_username, password=f"{self.password}blabla")
-        assert response.status_code == 401, f"status code is not as expected. Response: {response.json()}"
+        response = await self.login(username=self.test_username, password=f"{self.password}wrong")
+        assert response.status_code == 401, f"Expected 401 for bad password. Response: {response.json()}"
         
         content = response.json()
-        assert content['detail'] == "Invalid username or password.", f"wrong message details: {content['detail']} != Invalid username or password."
+        assert content['detail'] == "Invalid username or password.", f"Wrong detail: {content['detail']}"
 
     @pytest.mark.asyncio
     async def test_login_bad_username(self, mock_db):
         async def override_get_db_conn():
-            yield mock_db  
+            yield mock_db
 
         app.dependency_overrides[get_db_conn] = override_get_db_conn
 
-        response = await self.login(username=self.test_username, password=self.password)
-        assert response.status_code == 401, f"status code is not as expected. Response: {response.json()}"
+        response = await self.login(username="nonexistent_user", password=self.password)
+        assert response.status_code == 401, f"Expected 401 for bad username. Response: {response.json()}"
         
         content = response.json()
-        assert content['detail'] == "Invalid username or password.", f"wrong message details: {content['detail']} != Invalid username or password."
-
+        assert content['detail'] == "Invalid username or password.", f"Wrong detail: {content['detail']}"
 
 
     # # ----------------- questions -----------------

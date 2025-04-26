@@ -5,9 +5,10 @@ from fastapi.responses import Response
 from app.db import get_db_conn
 import json
 import logging
-from app.services.users.session import get_current_user
 from bson import ObjectId 
 from app.services.recommendations import classify_user_recom
+from app.services.users.auth import get_current_user
+
 
 
 logger = logging.getLogger(__name__)
@@ -16,12 +17,6 @@ router = APIRouter()
 
 @router.get("/user_question")
 async def user_question(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
-
-    if not current_user:
-        raise HTTPException(status_code=401, detail="User is not authenticated")
-    
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
     
     collection = db_conn["user_data"]
     
@@ -33,14 +28,10 @@ async def user_question(db_conn=Depends(get_db_conn), current_user=Depends(get_c
         
         classified_profile = classify_user_recom.classify_user_profile_from_db(user_data["answers"])
 
-        return Response(
-            content=json.dumps({
-                "answers": user_data["answers"],
-                "classified_profile": classified_profile
-            }, ensure_ascii=False), 
-            status_code=200,
-            media_type="application/json"
-        )
+        return {
+            "answers": user_data["answers"],
+            "classified_profile": classified_profile
+        }
 
     except Exception as e:
         logger.error(f"Error retrieving user answers: {e}")
@@ -48,13 +39,7 @@ async def user_question(db_conn=Depends(get_db_conn), current_user=Depends(get_c
   
 
 @router.post("/user_category")
-async def user_category(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
-    if not current_user:
-        raise HTTPException(status_code=401, detail="User is not authenticated")
-
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
-
+async def user_category(db_conn=Depends(get_db_conn)):
     collection = db_conn["user_data"]
 
     try:
@@ -78,14 +63,9 @@ async def user_category(db_conn=Depends(get_db_conn), current_user=Depends(get_c
         logger.error(f"Error updating user categories: {e}")
         raise HTTPException(status_code=500, detail="Failed to update user categories")
 
+
 @router.get("/user_enrichment")
 async def get_user_enrichment(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
-    
-    if not current_user:
-        raise HTTPException(status_code=401, detail="User is not authenticated")
-    
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
     
     collection = db_conn["user_data"]
 
@@ -99,14 +79,7 @@ async def get_user_enrichment(db_conn=Depends(get_db_conn), current_user=Depends
             raise HTTPException(status_code=404, detail="No classified profile found for this user")
         
         profile = user_data["classified_profile"]
-        
-        return Response(
-            content=json.dumps({
-                "classified_profile": profile,
-            }, ensure_ascii=False), 
-            status_code=200,
-            media_type="application/json"
-        )
+        return {"classified_profile": profile}
 
     except Exception as e:
         logger.error(f"Error retrieving user enrichment content: {e}")
