@@ -8,7 +8,6 @@ import json
 from pymongo import ASCENDING
 from app.services.users.auth import create_access_token, get_current_user
 
-
 current_user = None
 
 router = APIRouter()
@@ -112,3 +111,15 @@ async def questions_endpoint(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
+@router.get("/all")
+async def get_all_users(db_conn=Depends(get_db_conn)):
+    collection = db_conn["user_data"]
+    cursor = collection.find({}, {"_id": 0, "username": 1})
+    users = await cursor.to_list(length=None)
+    return {"users": users}
+
+
+@router.get("/me")
+async def get_current_user_info(current_user=Depends(get_current_user)):
+    return {"username": current_user["username"]}

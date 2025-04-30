@@ -12,3 +12,5 @@ pytest
 pytest-asyncio
 pydantic
 openai
+websockets
+python-jose
