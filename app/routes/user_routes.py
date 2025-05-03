@@ -6,6 +6,7 @@ from app.db import get_db_conn
 import json
 from app.services.users.session import set_current_user, get_current_user
 from pymongo import ASCENDING
+from app.models.social_graph import process_questionnaire_answers
 
 current_user = None
 
@@ -48,13 +49,14 @@ async def register_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
 
 @router.post("/login")
 async def login_endpoint(user_input: User, db_conn=Depends(get_db_conn)):
+    print(f"📥 Received login for user: {user_input.username}")
     collection = db_conn["user_data"]
 
     user = await collection.find_one({"username": user_input.username})
     if not user or user["password"] != user_input.password:
         raise HTTPException(status_code=401, detail="Invalid username or password.")
     
-    set_current_user(user) 
+    set_current_user(User(**user)) 
 
     return Response(
         content=json.dumps({"message": "Login successful", "username": user["username"]}),
@@ -103,9 +105,12 @@ async def questions_endpoint(answers: dict, db_conn=Depends(get_db_conn)):
         )
 
         if gender:
-            current_user.gender = gender
+             current_user.gender = gender
         if selected_image:
             current_user.selectedImage = selected_image
+            
+        # Process the questionnaire answers to generate recommendations
+        process_questionnaire_answers(answers, current_user.username, collection)
             
         return Response(
             content=json.dumps({"message": "Answers, gender, and image URL saved successfully"}),
@@ -113,5 +118,27 @@ async def questions_endpoint(answers: dict, db_conn=Depends(get_db_conn)):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+@router.get("/recommendations")
+async def get_recommendations(db_conn=Depends(get_db_conn)):
+    current_user = get_current_user()
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User is not authenticated")
+    collection = db_conn["user_data"]
+    user_doc = await collection.find_one({"username": current_user.username})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    recs = user_doc.get("recommended_users", [])
+    detailed = []
+    for uname in recs:
+        u = await collection.find_one({"username": uname})
+        if u:
+            detailed.append({
+                "username":        u["username"],
+                "gender":          u.get("gender", ""),
+                "selectedImage":   u.get("selectedImage", "")
+            })
+    return {"recommended_users": detailed}
+
 
 

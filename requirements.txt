@@ -12,3 +12,5 @@ pytest
 pytest-asyncio
 pydantic
 openai
+sentence-transformers
+scikit-learn
