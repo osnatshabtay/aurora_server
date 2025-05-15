@@ -122,4 +122,7 @@ async def get_all_users(db_conn=Depends(get_db_conn)):
 
 @router.get("/me")
 async def get_current_user_info(current_user=Depends(get_current_user)):
-    return {"username": current_user["username"]}
+    return {
+        "username": current_user["username"],
+        "selectedImage": current_user.get("selectedImage", "boy_avatar1.png")
+    }
