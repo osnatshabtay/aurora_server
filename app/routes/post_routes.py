@@ -29,7 +29,8 @@ async def write_post_endpoint(post_input: Post, db_conn=Depends(get_db_conn), cu
     new_post = Post(
         user=current_user["username"],
         user_image=current_user.get("selectedImage", ""),
-        text=post_input.text
+        text=post_input.text,
+        mood=post_input.mood
     )
 
     post_dict = new_post.dict()
