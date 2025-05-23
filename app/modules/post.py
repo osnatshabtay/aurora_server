@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Optional
 from datetime import datetime
 
 
@@ -14,6 +14,7 @@ class Post(BaseModel):
     user: str = None
     user_image: str = None
     text: str
+    mood: Optional[str] = None
     likes: List[str] = Field(default_factory=list)
     commands: List[Comment] = Field(default_factory=list)
     approved : bool = False

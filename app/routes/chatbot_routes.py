@@ -4,9 +4,10 @@ from fastapi.responses import Response
 from app.db import get_db_conn
 import json
 import logging
-from app.services.users.session import get_current_user
 import app.openai as openai_handler
 from app.modules.message import Message
+from app.services.users.auth import get_current_user
+
 
 
 logger = logging.getLogger(__name__)
@@ -37,9 +38,6 @@ async def chat(message_input: Message):
 async def chat(message_input: Message, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
     client = None
 
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
-
     user_data = await db_conn["user_data"].find_one({"username": current_user["username"]})
     if not user_data:
         raise HTTPException(status_code=400, detail="User does not exist.")
@@ -61,11 +59,7 @@ async def chat(message_input: Message, db_conn=Depends(get_db_conn), current_use
             {"username": current_user["username"]},
             {"$set": {"chat_history": updated_history}}
         )
-
-        return Response(
-                content=json.dumps({"response": resp}),
-                status_code=200
-            )
+        return {"response": resp}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
@@ -76,9 +70,6 @@ async def chat(message_input: Message, db_conn=Depends(get_db_conn), current_use
     
 @router.get("/chat_history")
 async def get_chat_history(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
-
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
 
     username = current_user["username"]
     user_data = await db_conn["user_data"].find_one({"username": username})

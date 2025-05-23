@@ -12,5 +12,9 @@ pytest
 pytest-asyncio
 pydantic
 openai
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+websockets
 sentence-transformers
 scikit-learn

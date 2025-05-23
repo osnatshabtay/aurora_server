@@ -6,8 +6,9 @@ from fastapi.responses import Response
 from app.db import get_db_conn
 import json
 import logging
-from app.services.users.session import get_current_user
 from bson import ObjectId
+from app.services.users.auth import get_current_user
+
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,8 @@ async def write_post_endpoint(post_input: Post, db_conn=Depends(get_db_conn), cu
     new_post = Post(
         user=current_user["username"],
         user_image=current_user.get("selectedImage", ""),
-        text=post_input.text
+        text=post_input.text,
+        mood=post_input.mood
     )
 
     post_dict = new_post.dict()
@@ -36,11 +38,11 @@ async def write_post_endpoint(post_input: Post, db_conn=Depends(get_db_conn), cu
 
     if not result.acknowledged:
         raise HTTPException(status_code=500, detail="Failed to save post to the database.")
-
-    return Response(
-        content=json.dumps({"message": "Post created successfully", "id": str(result.inserted_id)}),
-        status_code=200
-    )
+    
+    return {
+        "message": "Post created successfully",
+        "id": str(result.inserted_id)
+    }
 
 @router.get("/all_posts")
 async def posts_endpoint(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
@@ -52,25 +54,21 @@ async def posts_endpoint(db_conn=Depends(get_db_conn), current_user=Depends(get_
     for post in posts:
         if "_id" in post:
             post["_id"] = str(post["_id"])
-    
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
 
-    return {"posts": posts, "current_username": current_user["username"], "current_username_image": current_user["selectedImage"] }
-
+    return {
+        "posts": posts,
+        "current_username": current_user["username"],
+        "current_username_image": current_user.get("selectedImage", "")
+    }
 
 @router.post("/like")
 async def like_endpoint(request: LikeRequest, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
     
     post_id = request.post_id
     collection = db_conn["post_data"]
-
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
-
     username = current_user["username"]
 
-    if not ObjectId.is_valid(post_id):
+    if not ObjectId.is_valid(request.post_id):
         raise HTTPException(status_code=400, detail="Invalid post_id format.")
 
     try:
@@ -93,11 +91,9 @@ async def like_endpoint(request: LikeRequest, db_conn=Depends(get_db_conn), curr
                 {"$addToSet": {"likes": username}}
             )
             message = "Like added."
+        
+        return {"message": message}
 
-        return Response(
-            content=json.dumps({"message": message}),
-            status_code=200
-        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
@@ -105,11 +101,8 @@ async def like_endpoint(request: LikeRequest, db_conn=Depends(get_db_conn), curr
 
 @router.post("/comment")
 async def comments_endpoint(request: CommentRequest, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+    
     collection = db_conn["post_data"]
-
-    if not isinstance(current_user, dict):
-        current_user = current_user.dict()
-
     username = current_user["username"]
 
     if not ObjectId.is_valid(request.post_id):
@@ -131,18 +124,15 @@ async def comments_endpoint(request: CommentRequest, db_conn=Depends(get_db_conn
             {"$push": {"commands": comment}}
         )
 
-        return Response(
-            content=json.dumps({"message": "Comment added successfully!"}),
-            status_code=200
-        )
+        return {"message": "Comment added successfully!"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
-
+#-------------- for admin ------------- 
 @router.get("/pending_posts")
-async def get_pending_posts(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+async def get_pending_posts(db_conn=Depends(get_db_conn)):
     collection = db_conn["post_data"]
     
     posts_cursor = collection.find({"approved": False}).sort("timestamp", -1)
@@ -156,7 +146,7 @@ async def get_pending_posts(db_conn=Depends(get_db_conn), current_user=Depends(g
 
 
 @router.put("/approve_post/{post_id}")
-async def approve_post(post_id: str, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+async def approve_post(post_id: str, db_conn=Depends(get_db_conn)):
     collection = db_conn["post_data"]
     
     result = await collection.update_one({"_id": ObjectId(post_id)}, {"$set": {"approved": True}})
@@ -168,7 +158,7 @@ async def approve_post(post_id: str, db_conn=Depends(get_db_conn), current_user=
 
 
 @router.delete("/delete_post/{post_id}")
-async def delete_post(post_id: str, db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):
+async def delete_post(post_id: str, db_conn=Depends(get_db_conn)):
     collection = db_conn["post_data"]
     
     result = await collection.delete_one({"_id": ObjectId(post_id)})
