@@ -115,16 +115,14 @@ async def questions_endpoint(
                 }
             }
         )
-
-        return {"message": "Answers, gender, and image URL saved successfully"}
     
         if gender:
-             current_user.gender = gender
+             current_user["gender"] = gender
         if selected_image:
-            current_user.selectedImage = selected_image
+            current_user["selectedImage"] = selected_image
             
         # Process the questionnaire answers to generate recommendations
-        process_questionnaire_answers(answers, current_user.username, collection)
+        await process_questionnaire_answers(answers, current_user["username"], collection)
             
         return Response(
             content=json.dumps({"message": "Answers, gender, and image URL saved successfully"}),
@@ -132,6 +130,7 @@ async def questions_endpoint(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
     
 @router.get("/all")
 async def get_all_users(db_conn=Depends(get_db_conn)):
@@ -144,29 +143,31 @@ async def get_all_users(db_conn=Depends(get_db_conn)):
 @router.get("/me")
 async def get_current_user_info(current_user=Depends(get_current_user)):
     return {
-        "username": current_user["username"],
-        "selectedImage": current_user.get("selectedImage", "boy_avatar1.png")
+        "username": current_user['username'],
+        "selectedImage": getattr(current_user, "selectedImage", "boy_avatar1.png")
     }
 
+
 @router.get("/recommendations")
-async def get_recommendations(db_conn=Depends(get_db_conn)):
-    current_user = get_current_user()
-    if not current_user:
-        raise HTTPException(status_code=401, detail="User is not authenticated")
+async def get_recommendations(current_user=Depends(get_current_user), db_conn=Depends(get_db_conn)):
     collection = db_conn["user_data"]
-    user_doc = await collection.find_one({"username": current_user.username})
+
+    user_doc = await collection.find_one({"username": current_user["username"]})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
-    recs = user_doc.get("recommended_users", [])
+
+    recommended_usernames = user_doc.get("recommended_users", [])
     detailed = []
-    for uname in recs:
+
+    for uname in recommended_usernames:
         u = await collection.find_one({"username": uname})
         if u:
             detailed.append({
-                "username":        u["username"],
-                "gender":          u.get("gender", ""),
-                "selectedImage":   u.get("selectedImage", "")
+                "username": u["username"],
+                "gender": u.get("gender", ""),
+                "selectedImage": u.get("selectedImage", "")
             })
+
     return {"recommended_users": detailed}
 
 
