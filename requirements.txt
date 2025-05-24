@@ -16,5 +16,9 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 websockets
-sentence-transformers
+# NLP + Embeddings
+sentence-transformers==2.2.2
 scikit-learn
+numpy>=1.21.0,<2.0  
+# Vector Store
+faiss-cpu==1.7.4
