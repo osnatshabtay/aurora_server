@@ -4,24 +4,24 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
 
-# טען את המודל
+# Load the model
 model = SentenceTransformer("sentence-transformers/LaBSE")
 
-# נתיב לתיקיית FAISS_data
+# Path to the FAISS_data folder
 base_path = os.path.join(os.path.dirname(__file__), "..", "FAISS_data")
 
-# טען את הקובץ הבינארי של FAISS
+# Load the FAISS binary file
 faiss_index_path = os.path.join(base_path, "labse_index.faiss")
 index = faiss.read_index(faiss_index_path)
 
-# טען את הטקסטים והמטאדאטה
+# Load the texts and metadata
 metadata_path = os.path.join(base_path, "labse_texts_metadata.pkl")
 with open(metadata_path, "rb") as f:
     data = pickle.load(f)
     texts = data["texts"]
     metadata = data["metadata"]
 
-# פונקציה לשליפה סמנטית
+# Semantic retrieval function
 def search_similar_docs(query: str, top_k: int = 3):
     try:
         query_vec = model.encode(query, convert_to_numpy=True).astype("float32")
