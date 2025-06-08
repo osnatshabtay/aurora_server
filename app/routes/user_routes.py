@@ -172,3 +172,13 @@ async def get_recommendations(current_user=Depends(get_current_user), db_conn=De
 
 
 
+@router.get("/by_username/{username}")
+async def get_user_by_username(username: str, db=Depends(get_db_conn)):
+    user = await db["user_data"].find_one({"username": username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "username": user["username"],
+        "selectedImage": user.get("selectedImage", None),
+    }
