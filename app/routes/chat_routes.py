@@ -6,6 +6,11 @@ from app.services.users.auth import SECRET_KEY, ALGORITHM
 from app.db import get_db_conn
 import os
 from fastapi import Body
+from app.services.users.auth import get_current_user
+from typing import List
+from fastapi import Query
+
+
 
 router = APIRouter()
 
@@ -99,10 +104,11 @@ async def mark_messages_as_seen(
     )
     return {"updated_count": result.modified_count}
 
-@router.get("/chat/unread/{username}")
-async def get_unread_messages(username: str, db_conn=Depends(get_db_conn)):
-    messages = await db_conn["messages"].find({
-        "to": username,
+@router.get("/chat/unread")
+async def get_unread_messages(db_conn=Depends(get_db_conn), current_user=Depends(get_current_user)):    
+    collection = db_conn["messages"]
+    messages = await collection.find({
+        "to": current_user["username"],
         "seen": False
     }, {"_id": 0}).to_list(length=None)
 
@@ -110,3 +116,14 @@ async def get_unread_messages(username: str, db_conn=Depends(get_db_conn)):
         "count": len(messages),
         "messages": messages
     }
+
+@router.get("/users/multiple")
+async def get_multiple_users(usernames: List[str] = Query(...), db_conn=Depends(get_db_conn)):
+    users_collection = db_conn["user_data"]
+    cursor = users_collection.find(
+        {"username": {"$in": usernames}},
+        {"_id": 0, "username": 1, "selectedImage": 1}
+    )
+    users = await cursor.to_list(length=None)
+    print(users)
+    return users    
